@@ -1,23 +1,35 @@
 <template>
-    <v-card class="d-flex rounded-xl ma-4" elevation="4" >
-        <v-col class="mx-4 px-2 my-7 py-8 rounded-0" cols="2"  style="border-right: solid 2px gray">
-            text text profile text <br> {{ post.poster.name }}
-        </v-col>
-        <v-col class="my-4 flex-grow-1">
-            <div v-html="processedText"/>
-        </v-col>
-    </v-card>
+  <v-card class="d-flex rounded-xl ma-4" elevation="4" >
+    <v-col class="post_profile me-4 my-7 py-8 rounded-0" cols="auto">
+      <v-row justify="center" class="mb-4">
+        <ProfilePictureComponent v-bind="user" size="60"/>
+      </v-row>
+      <v-row justify="center" class="my-2">
+        {{ user.username }}
+      </v-row>
+      <v-row justify="center">
+        {{ user.profile_tag }}
+      </v-row>
+    </v-col>
+    <v-col class="my-4 flex-grow-1">
+      <div v-html="processedText"/>
+    </v-col>
+  </v-card>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import ProfilePictureComponent from '@/components/ProfilePictureComponent.vue'
 
-import Post from '@/models/post'
+import { computed, onMounted, ref } from 'vue'
 
 // eslint-disable-next-line no-undef
 const props = defineProps({
   post: {
-    type: Post,
+    type: Object,
+    required: true
+  },
+  user: {
+    type: Object,
     required: true
   }
 })
@@ -53,5 +65,11 @@ onMounted(() => {
 .opened-spoiler, .spoiler:active, .spoiler:hover {
     background-color: #333333;
     color: inherit;
+}
+
+.post_profile {
+  border-right: solid 2px gray;
+  width: 24%;
+  min-width: 10rem
 }
 </style>

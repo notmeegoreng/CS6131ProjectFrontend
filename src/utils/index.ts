@@ -1,4 +1,4 @@
-export * from './colour'
+export * from './user_avatar'
 export * from './crumbConverter'
 export * from './debouncedRef'
 export * from './scrollWaiter'

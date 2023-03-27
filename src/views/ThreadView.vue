@@ -30,12 +30,9 @@ const PAGE_SIZE = 10
 const store = useStore()
 
 // eslint-disable-next-line no-undef
-const props = defineProps({
-  thread_id: {
-    type: String,
-    required: true
-  }
-})
+const props = defineProps<{
+  thread_id: string
+}>()
 
 const page = ref(0)
 const length = computed(() => Math.ceil(data.container.last_pos / PAGE_SIZE))
@@ -44,7 +41,7 @@ type ThreadData = {
   parents: IDContainer[]
   container: {
     name: string;
-    // eslint-disable-next-line camelcase
+
     last_pos: number;
   }
 }
@@ -53,7 +50,6 @@ const resp = await getThreadInfo(props.thread_id)
 const data: ThreadData = await resp.json()
 console.log(data)
 
-// eslint-disable-next-line camelcase
 function hide_spoilers () {
   Array.from(document.querySelectorAll('.spoiler')).forEach(spoiler => {
     spoiler.classList.remove('opened-spoiler')

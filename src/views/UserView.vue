@@ -113,15 +113,15 @@ async function getData (userID: string | undefined) {
 }
 
 interface UserData {
-  // eslint-disable-next-line camelcase
+
   user_id: number,
   username: string,
   description: string,
-  // eslint-disable-next-line camelcase
+
   profile_tag: string,
-  // eslint-disable-next-line camelcase
+
   is_avatar_set: boolean,
-  // eslint-disable-next-line camelcase
+
   is_admin: boolean
 }
 
