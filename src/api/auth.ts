@@ -1,19 +1,17 @@
-import { baseLink } from './index'
-export function postUsernameAvailable (username: string) {
-  return fetch(`${baseLink}api/users/available?username=${username}`, {
-    method: 'POST'
-  })
+import { cachedFetch, baseAPILink } from './index'
+export function getUsernameAvailable (username: string) {
+  return cachedFetch(new Request(`${baseAPILink}/users/available?username=${username}`))
 }
 
 export function postPreAuth () {
-  return fetch(baseLink + 'api/auth/pre_auth', {
+  return fetch(`${baseAPILink}/auth/pre_auth`, {
     method: 'POST',
     credentials: 'include'
   })
 }
 
 export function postRegister (username: string, password: string) {
-  return fetch(baseLink + 'api/auth/register', {
+  return fetch(`${baseAPILink}/auth/register`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -24,7 +22,7 @@ export function postRegister (username: string, password: string) {
 }
 
 export function postLogin (username: string, password: string) {
-  return fetch(baseLink + 'api/auth/login', {
+  return fetch(`${baseAPILink}/auth/login`, {
     method: 'POST',
     credentials: 'include',
     headers: {

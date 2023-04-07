@@ -15,7 +15,7 @@ import { convertToCrumbs } from '@/utils'
 
 // eslint-disable-next-line no-undef
 const props = defineProps({
-  topic_id: {
+  id: {
     type: String,
     required: true
   }
@@ -23,7 +23,7 @@ const props = defineProps({
 
 const page = ref(1)
 
-const resp = await getTopicInfo(props.topic_id)
+const resp = await getTopicInfo(props.id)
 const data = await resp.json()
 console.log(data)
 </script>

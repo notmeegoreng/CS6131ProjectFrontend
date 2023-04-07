@@ -4,7 +4,6 @@ export type IDContainer = {
 }
 
 const routeNames = ['home', 'forums', 'topics', 'threads']
-const propNames = ['category_id', 'forum_id', 'topic_id', 'thread_id']
 
 export function convertToCrumbs (parents: IDContainer[]) {
   const out = [{
@@ -17,7 +16,7 @@ export function convertToCrumbs (parents: IDContainer[]) {
     const to = { name: routeNames[i] }
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    if (i) { to.params = { [propNames[i]]: e.id } } else { to.hash = `#C${e.id}` }
+    if (i) { to.params = { id: e.id } } else { to.hash = `#C${e.id}` }
 
     out.push({
       text: e.name,

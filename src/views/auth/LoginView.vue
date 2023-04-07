@@ -1,8 +1,8 @@
 <template>
-  <v-container fluid class="pl-4">
-    <v-form ref="form" @submit.prevent="onLogin">
+  <v-container fluid>
+    <v-form ref="form" @submit.prevent="onLogin" class="mx-4 mx-md-8">
       <v-row>
-        <p class="text-h5 mb-6">Login</p>
+        <p class="text-h5 mb-6 mt-8">Login</p>
       </v-row>
       <v-row>
         <v-text-field
@@ -26,7 +26,9 @@
         <v-btn @click="onRegister" color="secondary" class="mx-8">
           Register
         </v-btn>
-        <v-messages :messages="[errorMessage]"></v-messages>
+      </v-row>
+      <v-row>
+        <v-messages class="text-body-2 mt-4" :messages="errorMessage" :active="true" color="red-lighten-1" />
       </v-row>
     </v-form>
   </v-container>
@@ -55,6 +57,7 @@ function required (v: string) {
 
 let preAuthPromiseCleared = false
 async function onLogin () {
+  errorMessage.value = ''
   if ((await form.value?.validate()).valid) {
     loading.value = true
     if (!preAuthPromiseCleared) {
@@ -65,12 +68,25 @@ async function onLogin () {
     const result = await postLogin(username.value, password.value)
     if (result.ok) {
       store.userID = parseInt(await result.text())
-      await router.push({ name: 'me', state: { welcome: true } })
+      const query = router.currentRoute.value.query
+      const back = query.back as undefined | string
+      if (back === undefined) {
+        await router.push({
+          name: 'me',
+          state: { welcome: true }
+        })
+      } else {
+        delete query.back
+        await router.push({
+          name: back,
+          params: query as Record<string, string>
+        })
+      }
     } else if (result.status === 403) {
-      // todo: error message
       errorMessage.value = 'Incorrect username or password!'
       console.log(result)
     } else {
+      errorMessage.value = 'An error occurred...'
       console.log(result)
     }
     loading.value = false

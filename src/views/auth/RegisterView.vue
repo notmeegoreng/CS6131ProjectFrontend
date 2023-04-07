@@ -1,13 +1,13 @@
 <template>
-  <v-container fluid class="pl-4">
-    <v-form ref="form" class="ma-18" @submit.prevent="onRegister">
+  <v-container fluid>
+    <v-form ref="form" class="ma-18 mx-4 mx-md-8" @submit.prevent="onRegister">
       <v-row>
-        <p class="text-h5 mb-6">Register</p>
+        <p class="text-h5 mb-6 mt-8">Register</p>
       </v-row>
       <v-row>
         <v-text-field
           label="Username" v-model="username"
-          :rules="[required, v => v.length <= 32 || 'Too long! Maximum 32 characters']" :error-messages="errors"
+          :rules="[required, v => v.length <= 32 || 'Too long! Maximum 32 characters']" :error-messages="usernameErrors"
           :disabled="loading"
           filled class="mb-3" required/>
       </v-row>
@@ -38,6 +38,9 @@
           :loading="loading"
           :disabled="loading">Register</v-btn>
       </v-row>
+      <v-row>
+        <v-messages :messages="errorMessage" :active="true" color="red" />
+      </v-row>
     </v-form>
   </v-container>
 </template>
@@ -45,7 +48,7 @@
 <script setup lang="ts">
 import { onBeforeMount, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { postPreAuth, postRegister, postUsernameAvailable } from '@/api'
+import { postPreAuth, postRegister, getUsernameAvailable } from '@/api'
 import { debouncedRef } from '@/utils'
 import { useStore } from '@/store'
 
@@ -53,7 +56,7 @@ const router = useRouter()
 const store = useStore()
 
 const form = ref<HTMLFormElement | null>(null)
-const errors = ref<string[]>([])
+const usernameErrors = ref<string[]>([])
 const username = debouncedRef('')
 const password = ref('')
 const confirmPassword = ref('')
@@ -61,6 +64,7 @@ const passwordShow = ref(false)
 const confirmPasswordShow = ref(false)
 const checked = ref(false) // needed for the validation to work
 const loading = ref(false)
+const errorMessage = ref('')
 
 let preAuthPromise: Promise<Response> | null = null
 
@@ -68,15 +72,15 @@ let preAuthPromise: Promise<Response> | null = null
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 watch(username, async (n, _) => {
   if (!n) return
-  switch ((await postUsernameAvailable(n)).status) {
+  switch ((await getUsernameAvailable(n)).status) {
     case 200:
-      errors.value = []
+      usernameErrors.value = []
       break
     case 409:
-      errors.value = ['This username has been taken!']
+      usernameErrors.value = ['This username has been taken!']
       break
     default:
-      errors.value = ['An unexpected error occurred when checking username availability']
+      usernameErrors.value = ['An unexpected error occurred when checking username availability']
   }
 })
 
@@ -89,6 +93,7 @@ function match (v: string) {
 }
 
 async function onRegister () {
+  errorMessage.value = ''
   if ((await form.value?.validate()).valid) {
     loading.value = true
     await preAuthPromise
@@ -98,8 +103,7 @@ async function onRegister () {
       store.userID = parseInt(await result.text())
       await router.push({ name: 'me', state: { welcome: true } })
     } else {
-      // todo: error message
-      console.log(result)
+      errorMessage.value = 'An unexpected error occurred.'
     }
   }
 }

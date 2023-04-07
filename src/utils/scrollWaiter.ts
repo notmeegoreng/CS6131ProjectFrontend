@@ -1,20 +1,34 @@
-// credit to https://github.com/John60676/vuepress-next/commit/4b048b80be0275ccfb634607c228398c96a7b7d0
+// partial credit to https://github.com/John60676/vuepress-next/commit/4b048b80be0275ccfb634607c228398c96a7b7d0
 
-export class ScrollWaiter {
-  promise: Promise<unknown> | undefined = undefined
-  resolve: ((value: unknown) => void) | undefined = undefined
+type resolveType = (value: unknown) => void
 
-  add () {
-    this.promise = new Promise((resolve) => {
-      this.resolve = resolve
-    })
+export class Counter {
+  private count
+  clear?: Promise<unknown>
+  private resolve?: resolveType
+  constructor () {
+    this.count = 0
+    this.clear = undefined
   }
 
-  flush () {
-    this.resolve && this.resolve(undefined)
-    this.resolve = undefined
-    this.promise = undefined
+  inc () {
+    console.log('inc')
+    this.count += 1
+    if (this.count === 1) {
+      this.clear = new Promise((resolve) => (this.resolve = resolve))
+    }
+    return this
+  }
+
+  dec () {
+    console.log('dec')
+    if (!this.count) { return this }
+    this.count -= 1
+    if (this.count === 0) {
+      (this.resolve as resolveType)(undefined)
+    }
+    return this
   }
 }
 
-export const scrollWaiter = new ScrollWaiter()
+export const scrollWaiter = new Counter()

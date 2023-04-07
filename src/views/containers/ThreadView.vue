@@ -3,50 +3,42 @@
     <TitledBreadcrumbs :parents="convertToCrumbs(data.parents)" :current="data.container.name"/>
     <router-view v-slot="{ Component }">
       <template v-if="Component">
-        <Suspense>
-          <component :is="Component"/>
+        <Suspense @pending="scrollWaiter.inc()" @resolve="scrollWaiter.dec()">
+          <component :is="Component" :last_pos="data.container.last_pos"/>
           <template #fallback>
-            <v-progress-circular indeterminate class="d-flex justify-center mx-auto mt-4"/>
+            <LoadingComponent />
           </template>
         </Suspense>
       </template>
     </router-view>
-    <v-pagination
-      v-model="page" :length="length" :disabled="length <= 1"
-      show-first-last-page variant="tonal" />
   </v-container>
 </template>
 
 <script setup lang="ts">
 import TitledBreadcrumbs from '@/components/TitledBreadcrumbs.vue'
+import LoadingComponent from '@/components/LoadingComponent.vue'
 
-import { ref, onDeactivated, onMounted, computed } from 'vue'
+import { onDeactivated, onMounted } from 'vue'
 import { useStore } from '@/store'
 import { getThreadInfo } from '@/api'
-import { IDContainer, convertToCrumbs } from '@/utils'
-
-const PAGE_SIZE = 10
+import { IDContainer, convertToCrumbs, scrollWaiter } from '@/utils'
 
 const store = useStore()
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
-  thread_id: string
+  id: string
 }>()
-
-const page = ref(0)
-const length = computed(() => Math.ceil(data.container.last_pos / PAGE_SIZE))
 
 type ThreadData = {
   parents: IDContainer[]
   container: {
     name: string;
-
     last_pos: number;
   }
 }
 
-const resp = await getThreadInfo(props.thread_id)
+const resp = await getThreadInfo(props.id)
 const data: ThreadData = await resp.json()
 console.log(data)
 
@@ -55,6 +47,7 @@ function hide_spoilers () {
     spoiler.classList.remove('opened-spoiler')
   }, false)
 }
+
 onMounted(() => {
   store.spoilerHide = true
 })
