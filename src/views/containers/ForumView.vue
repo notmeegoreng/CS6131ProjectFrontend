@@ -1,6 +1,7 @@
 <template>
   <v-container fluid class="px-8">
-    <TitledBreadcrumbs v-once :parents="convertToCrumbs(data.parents)" :current="data.container.name"/>
+    <TitledBreadcrumbs v-once :parents="convertToCrumbs(data.parents)" :current="data.container.name"
+                       :current_to="{ name: 'forums', params: { id } }" />
     <SectionComponent
       name="Topics" :children="data.children"
       :get-to="(o) => { return { name: 'topics', params: { id: o.id } } }" />

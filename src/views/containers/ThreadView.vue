@@ -1,6 +1,7 @@
 <template>
   <v-container fluid class="pl-4">
-    <TitledBreadcrumbs :parents="convertToCrumbs(data.parents)" :current="data.container.name"/>
+    <TitledBreadcrumbs v-once :parents="convertToCrumbs(data.parents)" :current="data.container.name"
+                       :current_to="{ name: 'threads', params: { id } }" />
     <router-view v-slot="{ Component }">
       <template v-if="Component">
         <Suspense @pending="scrollWaiter.inc()" @resolve="scrollWaiter.dec()">

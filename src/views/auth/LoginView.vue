@@ -67,7 +67,9 @@ async function onLogin () {
 
     const result = await postLogin(username.value, password.value)
     if (result.ok) {
-      store.userID = parseInt(await result.text())
+      const data = await result.json()
+      store.userID = parseInt(data.user_id)
+      store.isAdmin = data.is_admin
       const query = router.currentRoute.value.query
       const back = query.back as undefined | string
       if (back === undefined) {

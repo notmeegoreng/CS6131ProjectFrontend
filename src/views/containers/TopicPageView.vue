@@ -2,12 +2,17 @@
   <v-container fluid>
     <SectionComponent
       name="Threads" :children="data.children"
-      :get-to="(o) => { return { name: 'threads', params: { id: o.id } } }">
+      :get-to="o => { return { name: 'threads', params: { id: o.id } } }">
       <template #prepend="{ c }">
         <!--suppress JSUnresolvedVariable -->
         <ProfilePictureComponent size="50" v-bind="data.users[c.user_id]" :user_id="c.user_id" />
       </template>
     </SectionComponent>
+    <v-btn
+      color="secondary-darken-1" icon="mdi-plus"
+      class="mb-8 me-8" position="fixed" location="bottom end"
+      :to="{ name: 'thread_create', params: { id: id } }" />
+    <v-pagination v-model="page"/>
   </v-container>
 </template>
 
@@ -27,7 +32,7 @@ const props = defineProps<{
 
 type TopicData = {
   children: {
-    user_id: number;
+    user_xid: number;
     name: string;
     description: string;
   }[];
@@ -40,6 +45,7 @@ type TopicData = {
 
 const resp = await getTopicData(props.id, props.page_num)
 const data = ref<TopicData>(await resp.json())
+const page = ref(1)
 console.log(data)
 
 onBeforeRouteUpdate(async (to, from) => {

@@ -3,9 +3,9 @@
     <v-app-bar app>
       <div class="mx-10 text-h5">Fount</div>
       <v-divider vertical/>
-      <v-btn class="ml-10 mr-2" :to="{name: 'home'}"><span>Home</span></v-btn>
-      <v-btn class="mx-2" :to="{name: 'latest'}">Latest</v-btn>
-      <v-btn class="mx-2" :to="{name: 'all_users'}">Users</v-btn>
+      <v-btn class="ml-10 mr-2" :to="{ name: 'home' }"><span>Home</span></v-btn>
+      <v-btn class="mx-2" :to="{ name: 'latest' }">Latest</v-btn>
+      <v-btn v-if="store.isAdmin" class="ml-2" :to="{ name: 'admin_panel' }">Admin Panel</v-btn>
       <v-spacer/>
       <template v-if="store.userID">
         <v-btn class="mx-2" :to="{name: 'users', params: {id: store.userID}}">Profile</v-btn>
@@ -31,12 +31,11 @@
           </v-btn>
         </template>
         <v-list>
-          <v-list-subheader>Theme</v-list-subheader>
           <v-list-item>
+            <v-list-item-title>Theme</v-list-item-title>
             <v-list-item-action>
-              <v-switch @click="toggleTheme" inset color="black"/>
+              <v-switch :label="(dark ? 'Dark' : 'Light') + ' Mode'" @click="toggleTheme" inset color="black"/>
             </v-list-item-action>
-            {{ (dark ? 'Dark' : 'Light') + ' Mode' }}
           </v-list-item>
           <v-list-item v-if="store.spoilerHide">
             <v-btn>

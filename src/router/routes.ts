@@ -22,10 +22,6 @@ const routes: Array<RouteRecordRaw> = [
     name: 'latest',
     component: () => import('@/views/LatestView.vue')
   }, {
-    path: '/users/',
-    name: 'all_users',
-    component: () => import('@/views/all_users.vue')
-  }, {
     path: '/users/me/',
     name: 'me',
     meta: { needsLogin: true },

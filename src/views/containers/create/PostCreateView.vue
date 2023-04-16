@@ -1,14 +1,18 @@
 <template>
   <v-container fluid class="px-4">
     <p class="text-h4 mb-4">New Post</p>
-    <v-textarea auto-grow label="Content" variant="solo" v-model="content"/>
-    <v-btn @click="onPost" :loading="loading">Post</v-btn>
+    <QuillEditor class="editor" v-model:content="content" content-type="html" />
+    <v-btn class="mt-4" @click="create" :loading="loading" variant="outlined">Post</v-btn>
   </v-container>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+
+import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import 'quill-emoji/dist/quill-emoji.css'
+
 import { postPostData } from '@/api'
 
 const router = useRouter()
@@ -21,7 +25,7 @@ const props = defineProps<{
 const content = ref('')
 const loading = ref(false)
 
-async function onPost () {
+async function create () {
   loading.value = true
   const resp = await postPostData(parseInt(props.id), content.value)
   const data = await resp.json()
@@ -30,6 +34,8 @@ async function onPost () {
 }
 </script>
 
-<style scoped>
-
+<style>
+.editor {
+  min-height: 100px; /* approximately 4 lines */
+}
 </style>

@@ -39,7 +39,7 @@
           :disabled="loading">Register</v-btn>
       </v-row>
       <v-row>
-        <v-messages :messages="errorMessage" :active="true" color="red" />
+        <v-messages class="text-body-2 mt-4" :messages="errorMessage" :active="true" color="red-lighten-1" />
       </v-row>
     </v-form>
   </v-container>

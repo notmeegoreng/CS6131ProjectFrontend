@@ -24,7 +24,7 @@ export default function makeRouter () {
   const store = useStore()
 
   router.beforeEach(async (to) => {
-    if (!to.meta.needLogin || store.userID === 0) {
+    if (!to.meta.needsLogin || store.userID !== 0) {
       return true
     }
     const query = to.params

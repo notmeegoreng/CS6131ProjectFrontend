@@ -22,7 +22,19 @@
       Nothing was found!
     </p>
     <template v-else-if="selected === 'users'">
-      <template v-for="(i) in data" :key="i">
+      <template v-for="(u, i) in data" :key="i">
+        <v-card class="mx-4 my-8 pa-2 rounded-xl" :to="{ name: 'users', params: { id: u.user_id } }">
+          <template #prepend>
+            <!--suppress RequiredAttributes -->
+            <ProfilePictureComponent v-bind="u" size="50" style="font-size: 1rem" />
+          </template>
+          <template #title>
+            {{ u.username }}
+          </template>
+          <v-textarea v-if="u.description" readonly no-resize focused variant="outlined" class="mt-4 mx-4"
+                      label="Description" v-model="u.description" />
+          <p v-else class="ma-4">No description set!</p>
+        </v-card>
       </template>
     </template>
     <template v-else-if="selected === 'posts'">
@@ -46,7 +58,7 @@
       <template v-for="(s, id) in data" :key="id" >
         <SectionComponent
           :name="s.container.name" :description="s.container.description"
-          :children="s.children" :getTo="c => { return { name: selected, params: { id: 'P' + c.id } } }">
+          :children="s.children" :getTo="c => { return { name: selected, params: { id: c.id } } }">
           <template #prepend="{ c }">
             <!--suppress RequiredAttributes, JSUnresolvedVariable -->
             <ProfilePictureComponent v-if="c.user_id" size="50" v-bind="c" />

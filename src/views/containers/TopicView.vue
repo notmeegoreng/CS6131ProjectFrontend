@@ -1,15 +1,14 @@
 <template>
   <v-container fluid class="px-8">
-    <TitledBreadcrumbs v-once :parents="convertToCrumbs(data.parents)" :current="data.container.name"/>
-    <router-view></router-view>
-    <v-pagination v-model="page"/>
+    <TitledBreadcrumbs v-once :parents="convertToCrumbs(data.parents)" :current="data.container.name"
+                       :current_to="{ name: 'topics', params: { id } }"/>
+    <router-view />
   </v-container>
 </template>
 
 <script setup lang="ts">
 import TitledBreadcrumbs from '@/components/TitledBreadcrumbs.vue'
 
-import { ref } from 'vue'
 import { getTopicInfo } from '@/api'
 import { convertToCrumbs } from '@/utils'
 
@@ -20,8 +19,6 @@ const props = defineProps({
     required: true
   }
 })
-
-const page = ref(1)
 
 const resp = await getTopicInfo(props.id)
 const data = await resp.json()

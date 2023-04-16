@@ -12,7 +12,6 @@ export class Counter {
   }
 
   inc () {
-    console.log('inc')
     this.count += 1
     if (this.count === 1) {
       this.clear = new Promise((resolve) => (this.resolve = resolve))
@@ -21,7 +20,6 @@ export class Counter {
   }
 
   dec () {
-    console.log('dec')
     if (!this.count) { return this }
     this.count -= 1
     if (this.count === 0) {

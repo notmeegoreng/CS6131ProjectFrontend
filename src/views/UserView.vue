@@ -5,17 +5,26 @@
     <v-card class="mx-4 pa-8 rounded-xl" v-if="userData !== null">
       <v-card-title>
         <v-row class="ma-1">
-          <v-col cols="auto">
-            <v-avatar v-if="userData.is_avatar_set" v-bind="props" size="80">
-              <v-img :src="imageSrc" alt="Profile Picture" />
-            </v-avatar>
-            <v-avatar
-              v-else v-bind="props" :color="colour" size="80" class="text-uppercase">
-              {{ userData.is_avatar_set ? '' : initials }}
-            </v-avatar>
-          </v-col>
-          <v-col>
-            <p class="ma-4 justify-center flex-fill" v-text="userData.username" />
+          <v-dialog v-model="uploadDialog">
+            <template #activator="{ props }">
+              <v-col cols="auto" v-bind="editing ? props : {}" :class="{ 'cursor-pointer': editing }">
+                <ProfilePictureComponent v-bind="userData" size="80" />
+                <v-icon :class="{ hidden: !editing }" icon="mdi-pencil" size="15" class="edit-icon" />
+              </v-col>
+            </template>
+            <v-card style="width: 40%">
+              <v-card-title>Upload Avatar</v-card-title>
+              <v-card-text>
+                <v-file-input accept="image/*" v-model="file" label="Avatar" :rules="[validateAvatar]" />
+              </v-card-text>
+              <v-card-actions>
+                <v-btn @click="updateAvatar" :loading="uploadLoading" :disabled="uploadLoading">Upload</v-btn>
+                <v-btn @click="uploadDialog = false" :disabled="uploadLoading">Cancel</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+          <v-col class="pl-0 align-center">
+            <p class="my-4 justify-center align-center flex-fill" v-text="userData.username" />
           </v-col>
         </v-row>
       </v-card-title>
@@ -65,11 +74,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onBeforeMount, watch } from 'vue'
+import ProfilePictureComponent from '@/components/ProfilePictureComponent.vue'
+
+import { ref, computed, onBeforeMount } from 'vue'
 import { onBeforeRouteUpdate, useRouter } from 'vue-router'
 import { useStore } from '@/store'
-import { getUserData, patchUser } from '@/api'
-import { getColour } from '@/utils'
+import { getUserData, patchUser, postAvatar } from '@/api'
+import { VFileInput } from 'vuetify/components'
 
 const maxTagLength = 64
 const maxDescriptionLength = 1024
@@ -101,52 +112,52 @@ async function getData (userID: string | undefined) {
   return null
 }
 
-interface UserData {
+type UserData = {
   user_id: number,
   username: string,
   description: string,
-
   profile_tag: string,
-
   is_avatar_set: boolean,
-
   is_admin: boolean
 }
 
 const userData = ref<UserData>(await getData(props.id))
-const colour = computed(() => userData.value.is_avatar_set ? undefined : getColour(userData.value.user_id))
-const imageSrc = ref('')
 const canEdit = computed(() => {
   return props.id === undefined || props.id === store.userID.toString()
-})
-const initials = computed(() => {
-  return userData.value.is_avatar_set
-    ? undefined
-    : userData.value.username.split(' ', 2)
-      .map(s => s.charAt(0)).join('')
 })
 const editForm = ref<HTMLFormElement | null>(null)
 const editing = ref(false)
 const loading = ref(false)
 const welcome = ref(false)
+const file = ref<File[]>([])
+const uploadDialog = ref(false)
+const uploadLoading = ref(false)
 
-console.log(userData.value)
-watch(userData, (o, n) => {
-  console.log(n)
-})
-
-function toggleEditing () {
+async function toggleEditing () {
   if (editing.value) {
-    if (editForm.value?.validate()) {
+    if ((await editForm.value?.validate()).valid) {
       loading.value = true
-      patchUser(userData.value.profile_tag, userData.value.description).then(() => {
-        loading.value = false
-        editing.value = false
-      })
+      await patchUser(userData.value.profile_tag, userData.value.description)
+      loading.value = false
+      editing.value = false
     }
   } else {
     editing.value = true
   }
+}
+
+function updateAvatar () {
+  uploadLoading.value = true
+  postAvatar(file.value[0]).then(() => getData(props.id)).then((d) => {
+    userData.value = d
+    uploadDialog.value = uploadLoading.value = false
+  })
+}
+
+function validateAvatar (v: File[]) {
+  if (!v) return 'Please provide an image!'
+  if (v[0].size > 2000000) return 'Avatar should be less than 2 MB!'
+  return true
 }
 
 onBeforeRouteUpdate(async (to, from) => {
@@ -161,3 +172,18 @@ onBeforeMount(() => {
   welcome.value = window.history.state.welcome ?? false
 })
 </script>
+
+<style>
+.hidden {
+  visibility: hidden;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.edit-icon {
+  margin-top: 65%;
+  margin-left: -15%;
+}
+</style>
