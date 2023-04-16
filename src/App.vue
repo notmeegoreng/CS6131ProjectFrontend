@@ -82,6 +82,7 @@ async function toggleTheme () {
 async function logout () {
   logoutDialog.value = false
   store.userID = 0
+  store.isAdmin = false
   await router.push({ name: 'home' })
 }
 </script>
