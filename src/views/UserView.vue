@@ -8,13 +8,21 @@
           <v-dialog v-model="uploadDialog">
             <template #activator="{ props }">
               <v-col cols="auto" v-bind="editing ? props : {}" :class="{ 'cursor-pointer': editing }">
-                <ProfilePictureComponent v-bind="userData" size="80" />
+                <ProfilePictureComponent v-bind="userData" size="80">
+                  <v-overlay v-model="editedAvatar" contained persistent no-click-animation
+                             class="align-center justify-center" scrim="black">
+                    <v-icon icon="mdi-reload" color="grey-lighten-2" />
+                  </v-overlay>
+                </ProfilePictureComponent>
                 <v-icon :class="{ hidden: !editing }" icon="mdi-pencil" size="15" class="edit-icon" />
               </v-col>
             </template>
             <v-card style="width: 40%">
-              <v-card-title>Upload Avatar</v-card-title>
+              <v-card-title class="mt-1">Upload Avatar</v-card-title>
               <v-card-text>
+                <p class="mb-4">
+                  Do try to use an image that is roughly square! Rectangular images will leave blank space.
+                </p>
                 <v-file-input accept="image/*" v-model="file" label="Avatar" :rules="[validateAvatar]" />
               </v-card-text>
               <v-card-actions>
@@ -23,8 +31,9 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
-          <v-col class="pl-0 align-center">
-            <p class="my-4 justify-center align-center flex-fill" v-text="userData.username" />
+          <v-col class="pl-0">
+            <p :class="userData.is_admin ? 'mt-2' : 'mt-5'" v-text="userData.username" />
+            <v-chip v-if="userData.is_admin" class="mt-2">Administrator</v-chip>
           </v-col>
         </v-row>
       </v-card-title>
@@ -70,17 +79,33 @@
       </v-form>
     </v-card>
     <p v-else class="text-h5">User not found</p>
+    <template v-if="userData.is_admin">
+      <LoadingComponent v-if="loadingLog" />
+      <SectionComponent name="Audit Log" :children="logData" :get-to="() => undefined"
+                        class="mx-4 mt-8 rounded-xl">
+        <template #prepend="{ c }">
+          <p class="me-8">
+            {{ new Date(c.time).toUTCString() }}
+          </p>
+        </template>
+        <template #content="{ c }">
+          {{ c.log }}
+        </template>
+      </SectionComponent>
+    </template>
   </v-container>
 </template>
 
 <script setup lang="ts">
 import ProfilePictureComponent from '@/components/ProfilePictureComponent.vue'
 
-import { ref, computed, onBeforeMount } from 'vue'
+import { ref, computed, onBeforeMount, watch } from 'vue'
 import { onBeforeRouteUpdate, useRouter } from 'vue-router'
 import { useStore } from '@/store'
-import { getUserData, patchUser, postAvatar } from '@/api'
+import { getUserData, getUserLogs, patchUser, postAvatar } from '@/api'
 import { VFileInput } from 'vuetify/components'
+import SectionComponent from '@/components/SectionComponent.vue'
+import LoadingComponent from '@/App.vue'
 
 const maxTagLength = 64
 const maxDescriptionLength = 1024
@@ -132,6 +157,20 @@ const welcome = ref(false)
 const file = ref<File[]>([])
 const uploadDialog = ref(false)
 const uploadLoading = ref(false)
+const editedAvatar = ref(false)
+const logData = ref<{ log_id: number, log: string, time: string }[] | null>(null)
+const loadingLog = ref(true)
+
+watch(userData, d => {
+  if (d.is_admin) {
+    loadingLog.value = true
+    getUserLogs(d.user_id).then(r => r.json()).then(d => {
+      logData.value = d
+      loadingLog.value = false
+      console.log(d)
+    })
+  }
+}, { immediate: true })
 
 async function toggleEditing () {
   if (editing.value) {
@@ -140,6 +179,9 @@ async function toggleEditing () {
       await patchUser(userData.value.profile_tag, userData.value.description)
       loading.value = false
       editing.value = false
+      if (editedAvatar.value) {
+        window.location.reload()
+      }
     }
   } else {
     editing.value = true
@@ -151,6 +193,7 @@ function updateAvatar () {
   postAvatar(file.value[0]).then(() => getData(props.id)).then((d) => {
     userData.value = d
     uploadDialog.value = uploadLoading.value = false
+    editedAvatar.value = true
   })
 }
 

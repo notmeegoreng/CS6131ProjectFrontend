@@ -37,11 +37,6 @@
               <v-switch :label="(dark ? 'Dark' : 'Light') + ' Mode'" @click="toggleTheme" inset color="black"/>
             </v-list-item-action>
           </v-list-item>
-          <v-list-item v-if="store.spoilerHide">
-            <v-btn>
-              Hide Spoilers
-            </v-btn>
-          </v-list-item>
         </v-list>
       </v-menu>
       <v-btn class="mx-4" icon :to="{ name: 'search' }">

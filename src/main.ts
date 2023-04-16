@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import vuetify from './plugins/vuetify'
 import { loadFonts } from './plugins/webfontloader'
 import { createPinia } from 'pinia'
+import piniaPluginPersistedState from 'pinia-plugin-persistedstate'
 import createRouter from './router'
 import App from './App.vue'
 
@@ -49,7 +50,7 @@ const globalVueQuillOptions = {
 QuillEditor.props.globalOptions.default = () => globalVueQuillOptions
 
 createApp(App)
-  .use(createPinia())
+  .use(createPinia().use(piniaPluginPersistedState))
   .use(createRouter())
   .use(vuetify)
   .component('QuillEditor', QuillEditor)

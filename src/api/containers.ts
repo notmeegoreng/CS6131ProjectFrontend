@@ -30,6 +30,10 @@ export function getThreadData (threadID: string, pageNum: string, invalidate = f
   }), 60000, invalidate)
 }
 
+export function getAllReactions () {
+  return cachedFetch(new Request(`${baseAPILink}/reactions`), 120000)
+}
+
 export function postThreadData (topicID: number, name: string, post_content: string) {
   return fetch(new Request(`${baseAPILink}/threads`, {
     method: 'POST',

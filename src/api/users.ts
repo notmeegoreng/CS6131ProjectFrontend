@@ -1,8 +1,12 @@
 import { cachedFetch, baseAPILink } from './index'
 import { useStore } from '@/store'
 
-export function getUserData (userID: string) {
+export function getUserData (userID: number | string) {
   return cachedFetch(new Request(`${baseAPILink}/users/${userID}`), 120000)
+}
+
+export function getUserLogs (userID: number | string) {
+  return cachedFetch(new Request(`${baseAPILink}/users/${userID}/logs`), 120000)
 }
 
 export function patchUser (profile_tag: string | null, description: string | null) {

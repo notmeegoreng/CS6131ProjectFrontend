@@ -5,7 +5,7 @@
     <router-view v-slot="{ Component }">
       <template v-if="Component">
         <Suspense @pending="scrollWaiter.inc()" @resolve="scrollWaiter.dec()">
-          <component :is="Component" :last_pos="data.container.last_pos"/>
+          <component :is="Component" :last_pos="data.container.last_pos" :topic_id="data.parents[2].id" />
           <template #fallback>
             <LoadingComponent />
           </template>
@@ -19,12 +19,8 @@
 import TitledBreadcrumbs from '@/components/TitledBreadcrumbs.vue'
 import LoadingComponent from '@/components/LoadingComponent.vue'
 
-import { onDeactivated, onMounted } from 'vue'
-import { useStore } from '@/store'
 import { getThreadInfo } from '@/api'
 import { IDContainer, convertToCrumbs, scrollWaiter } from '@/utils'
-
-const store = useStore()
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -43,17 +39,10 @@ const resp = await getThreadInfo(props.id)
 const data: ThreadData = await resp.json()
 console.log(data)
 
+// ack, no time to implement using this
 function hide_spoilers () {
   Array.from(document.querySelectorAll('.spoiler')).forEach(spoiler => {
     spoiler.classList.remove('opened-spoiler')
   }, false)
 }
-
-onMounted(() => {
-  store.spoilerHide = true
-})
-
-onDeactivated(() => {
-  store.spoilerHide = false
-})
 </script>

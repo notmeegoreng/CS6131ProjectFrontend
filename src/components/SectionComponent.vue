@@ -17,11 +17,14 @@
           </slot>
         </template>
         <template #prepend>
-          <v-icon icon="mdi-arrow-right" color="secondary" />
-          <slot name="prepend" :c="c" />
+          <slot name="prepend" :c="c">
+            <v-icon icon="mdi-arrow-right" color="secondary" />
+          </slot>
         </template>
         <v-list-item-subtitle>
-          <ContentComponent :content="c.description ? c.description : c.content" />
+          <slot name="content" :c="c">
+            <ContentComponent :content="c.description ? c.description : c.content" />
+          </slot>
         </v-list-item-subtitle>
       </v-list-item>
     </template>
